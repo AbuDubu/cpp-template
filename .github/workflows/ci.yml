@@ -1,0 +1,36 @@
+# Builds and tests every push and pull request with GCC and Clang,
+# in three configurations: ci (warnings are errors), asan (+UBSan) and tsan.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.compiler }} / ${{ matrix.preset }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false          # let every job finish so you see all failures at once
+      matrix:
+        compiler: [gcc, clang]
+        preset: [ci, asan, tsan]
+    env:
+      # CMake reads CC/CXX on the first configure to choose the compiler.
+      CC: ${{ matrix.compiler }}
+      CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Ubuntu 24.04 runners use high address-space randomization, which older
+      # sanitizer runtimes can't handle ("unexpected memory mapping").
+      - name: Lower ASLR entropy for sanitizers
+        if: matrix.preset != 'ci'
+        run: sudo sysctl vm.mmap_rnd_bits=28
+
+      # Runs the configure, build and test steps of the workflow preset.
+      - name: Configure, build and test
+        run: cmake --workflow --preset ${{ matrix.preset }}

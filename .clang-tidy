@@ -1,0 +1,11 @@
+# Static analysis. Runs during the build with: cmake --preset tidy && cmake --build --preset tidy
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  performance-*,
+  portability-*,
+  -bugprone-easily-swappable-parameters,
+  -portability-avoid-pragma-once
+WarningsAsErrors: ''
+HeaderFilterRegex: '(src|app|tests|bench)/'

@@ -1,0 +1,11 @@
+# Build output (every preset builds into build/<preset>)
+build/
+
+# Personal presets: each developer's own, never committed
+CMakeUserPresets.json
+
+# Editor and tool caches
+.cache/
+.vscode/
+.idea/
+compile_commands.json
